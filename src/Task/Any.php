@@ -15,7 +15,6 @@ class Any implements Async
     public $done;
 
     public function __construct(array $tasks, AsyncTask $parent = null) {
-        assert(!empty($tasks));
         $this->tasks = $tasks;
         $this->parent = $parent;
         $this->done = false;

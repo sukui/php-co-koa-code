@@ -6,6 +6,7 @@
  * Time: 上午10:35
  */
 
+use Sukui\ServerContext;
 use Sukui\SysCall;
 use Sukui\Channel;
 use Sukui\BufferChannel;
@@ -117,7 +118,7 @@ function await($task,...$args){
     if($task instanceof \Generator){
         return $task;
     }
-    if(is_callable($task)){
+    if(is_callable($task) && ! $task instanceof SysCall){
         $gen = function()use($task,$args){
             yield $task(...$args);
         };
@@ -180,4 +181,19 @@ function fork($task,...$args){
     return new SysCall(function(AsyncTask $parent)use($task){
         return new FutureTask($task,$parent);
     });
+}
+
+function array_right_reduce(array $input, callable $function, $initial = null)
+{
+    return array_reduce(array_reverse($input, true), $function, $initial);
+}
+
+function compose(array $middleware)
+{
+    return function(ServerContext $ctx = null) use($middleware) {
+        $ctx = $ctx ?: new ServerContext(); // Context 参见下文
+        return array_right_reduce($middleware, function($rightNext, $leftFn) use($ctx) {
+            return $leftFn($ctx, $rightNext);
+        }, null);
+    };
 }
