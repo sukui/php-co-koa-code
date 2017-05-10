@@ -18,15 +18,6 @@ class NotFound implements Middleware {
             return;
         }
         $ctx->status = 404;
-
-        if ($ctx->accept("json")) {
-            $ctx->body = [
-                "message" => "Not Found",
-            ];
-            return;
-        }
-
         $ctx->body = "<h1>404 Not Found</h1>";
-
     }
 }

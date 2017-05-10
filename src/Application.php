@@ -56,7 +56,7 @@ class Application{
     protected function makeResponseHandler(ServerContext $context){
         return function ($r=null,\Exception $ex = null)use ($context){
             if($ex){
-                $this->handleError($context);
+                $this->handleError($context,$ex);
             }else{
                 $this->respond($context);
             }
@@ -68,23 +68,13 @@ class Application{
             return;
         }
         if($ex && $ex->getCode() !== 404){
-            echo "something wrong";
-            //sys_error($context);
-            //sys_error($ex);
-        }
-        $msg = $ex->getCode();
-        if($ex instanceof \HttpException){
-            $status = $ex->status?:500;
-            $context->res->status($status);
-            if($ex->expose){
-                $msg = $ex->getMessage();
-            }
-        }else{
-            $context->res->status(500);
-        }
 
+        }
+        $code = $ex->getCode();
+        $message = $ex->getMessage();
+        $context->res->status($code);
         $context->res->header("Content-Type", "text");
-        $context->res->write($msg);
+        $context->res->write($message);
         $context->res->end();
     }
 
